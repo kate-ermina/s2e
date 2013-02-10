@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>Room.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">AllTests (Feb 4, 2013 12:31:10 PM)</a> &gt; <a href="../../index.html" class="el_group">onlineHotel</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.html" class="el_package">onlinehotel.model</a> &gt; <span class="el_source">Room.java</span></div><h1>Room.java</h1><pre class="source lang-java linenums">package onlinehotel.model;
+
+import java.text.DecimalFormat;
+
+<span class="fc" id="L5">public class Room {</span>
+
+	private String roomNumber;
+	private Integer numOfBeds;
+	private Double price;
+	private Double discount;
+	private String descr;
+
+	public String getRoomNumber() {
+<span class="fc" id="L14">		return roomNumber;</span>
+	}
+
+	public void setRoomNumber(String roomNumber) {
+<span class="fc" id="L18">		this.roomNumber = roomNumber;</span>
+<span class="fc" id="L19">	}</span>
+
+	public Integer getNumOfBeds() {
+<span class="nc" id="L22">		return numOfBeds;</span>
+	}
+
+	public void setNumOfBeds(Integer numOfBeds) {
+<span class="fc" id="L26">		this.numOfBeds = numOfBeds;</span>
+<span class="fc" id="L27">	}</span>
+
+	public Double getPrice() {
+<span class="fc" id="L30">		return price;</span>
+	}
+
+	public void setPrice(Double price) {
+<span class="fc" id="L34">		this.price = price;</span>
+<span class="fc" id="L35">	}</span>
+
+	public Double getDiscount() {
+<span class="fc" id="L38">		return discount;</span>
+	}
+
+	public void setDiscount(Double discount) {
+<span class="fc" id="L42">		this.discount = discount;</span>
+<span class="fc" id="L43">	}</span>
+
+	public String getDescr() {
+<span class="nc" id="L46">		return descr;</span>
+	}
+
+	public void setDescr(String descr) {
+<span class="fc" id="L50">		this.descr = descr;</span>
+<span class="fc" id="L51">	}</span>
+	
+	
+	public Double getPriceWithDiscount() {
+<span class="nc" id="L55">		Double priceWithDiscount = price;</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">		if(discount != null) {</span>
+<span class="nc" id="L57">			priceWithDiscount = (price * ( 100 - discount)) / 100;</span>
+		}
+<span class="nc" id="L59">		return priceWithDiscount;</span>
+	}
+	
+	public String toString() {
+<span class="nc" id="L63">		final DecimalFormat decFormat = new DecimalFormat(&quot;#.##&quot;);</span>
+<span class="nc" id="L64">		return this.descr + &quot;, Price : &quot; + decFormat.format(this.getPriceWithDiscount())  + &quot; \u20AC&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.0.201210061924</span>AllTests (Feb 4, 2013 12:31:10 PM)</div></body></html>

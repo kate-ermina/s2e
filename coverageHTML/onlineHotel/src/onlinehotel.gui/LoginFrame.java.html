@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>LoginFrame.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">AllTests (Feb 4, 2013 12:31:10 PM)</a> &gt; <a href="../../index.html" class="el_group">onlineHotel</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.html" class="el_package">onlinehotel.gui</a> &gt; <span class="el_source">LoginFrame.java</span></div><h1>LoginFrame.java</h1><pre class="source lang-java linenums"><span class="nc" id="L1">package onlinehotel.gui;</span>
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+import onlinehotel.users.UserManager;
+
+
+public class LoginFrame extends JFrame {
+
+<span class="nc" id="L27">	private UserManager manager = new UserManager();</span>
+	
+	// Components
+<span class="nc" id="L30">	private JComboBox loginAsCombo = new JComboBox(new String[] {&quot;Customer&quot;,&quot;Employee&quot;,&quot;Admin&quot;});</span>
+<span class="nc" id="L31">	private JTextField usernameField = new JTextField(20);</span>
+<span class="nc" id="L32">	private JPasswordField passwordField = new JPasswordField(20);</span>
+	
+	public LoginFrame() {
+<span class="nc" id="L35">		super();</span>
+<span class="nc" id="L36">		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);</span>
+<span class="nc" id="L37">	    this.setResizable(false);</span>
+<span class="nc" id="L38">	    this.setLocation(400,200);</span>
+	    //Add content to the window.
+<span class="nc" id="L40">	    this.add(this.createLoginPanel(), BorderLayout.CENTER);</span>
+<span class="nc" id="L41">	}</span>
+	
+	public void displayWindow() {
+<span class="nc" id="L44">		this.pack();</span>
+<span class="nc" id="L45">        this.setVisible(true);</span>
+<span class="nc" id="L46">	}</span>
+	
+	private JComponent createLoginPanel() {
+<span class="nc" id="L49">		JPanel loginPanel = new JPanel();</span>
+<span class="nc" id="L50">		loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));</span>
+<span class="nc" id="L51">		loginPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 0));</span>
+		
+<span class="nc" id="L53">		loginPanel.add(this.createLoginAsComponent());</span>
+<span class="nc" id="L54">		loginPanel.add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L55">		loginPanel.add(this.createUsernameComponent());</span>
+<span class="nc" id="L56">		loginPanel.add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L57">		loginPanel.add(this.createPasswordComponent());</span>
+<span class="nc" id="L58">		loginPanel.add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L59">		loginPanel.add(this.createButtonsComponent());	</span>
+<span class="nc" id="L60">		return loginPanel;</span>
+	}
+	
+	private JComponent createLoginAsComponent() {
+		// Components
+<span class="nc" id="L65">		JLabel loginAsLabel = new JLabel(&quot;Login as : &quot;);</span>
+<span class="nc" id="L66">		loginAsCombo.setSelectedIndex(0);</span>
+<span class="nc" id="L67">		loginAsCombo.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent event) {
+<span class="nc" id="L70">				JComboBox comboBox = (JComboBox)event.getSource();</span>
+<span class="nc" id="L71">				int value = comboBox.getSelectedIndex();</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">				if (value == 0) {</span>
+<span class="nc" id="L73">					usernameField.setEnabled(false);</span>
+<span class="nc" id="L74">					usernameField.setText(null);</span>
+<span class="nc" id="L75">					passwordField.setEnabled(false);</span>
+<span class="nc" id="L76">					passwordField.setText(null);</span>
+				} else {
+<span class="nc" id="L78">					usernameField.setEnabled(true);</span>
+<span class="nc" id="L79">					passwordField.setEnabled(true);</span>
+				}
+<span class="nc" id="L81">			}</span>
+		});
+		// Panel
+<span class="nc" id="L84">		JPanel loginAsPanel = new JPanel();</span>
+<span class="nc" id="L85">		loginAsPanel.setLayout(new BoxLayout(loginAsPanel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L86">		loginAsPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));</span>
+<span class="nc" id="L87">		loginAsPanel.add(loginAsLabel);</span>
+<span class="nc" id="L88">		loginAsPanel.add(Box.createRigidArea(new Dimension(20, 0)));</span>
+<span class="nc" id="L89">		loginAsPanel.add(loginAsCombo);</span>
+<span class="nc" id="L90">		return loginAsPanel;</span>
+	}
+	
+	private JComponent createUsernameComponent() {
+		// Components
+<span class="nc" id="L95">		JLabel label = new JLabel(&quot;Username : &quot;);</span>
+<span class="nc" id="L96">		usernameField.setEnabled(false);</span>
+		// Panel
+<span class="nc" id="L98">		JPanel component = new JPanel();</span>
+<span class="nc" id="L99">		component.setLayout(new BoxLayout(component, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L100">		component.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));</span>
+<span class="nc" id="L101">		component.add(label);</span>
+<span class="nc" id="L102">		component.add(Box.createRigidArea(new Dimension(10, 0)));</span>
+<span class="nc" id="L103">		component.add(usernameField);</span>
+<span class="nc" id="L104">		return component;</span>
+	}
+	
+	private JComponent createPasswordComponent() {
+		// Components
+<span class="nc" id="L109">		JLabel label = new JLabel(&quot;Password : &quot;);</span>
+<span class="nc" id="L110">		passwordField.setEnabled(false);</span>
+		// Panel
+<span class="nc" id="L112">		JPanel component = new JPanel();</span>
+<span class="nc" id="L113">		component.setLayout(new BoxLayout(component, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L114">		component.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));</span>
+<span class="nc" id="L115">		component.add(label);</span>
+<span class="nc" id="L116">		component.add(Box.createRigidArea(new Dimension(12, 0)));</span>
+<span class="nc" id="L117">		component.add(passwordField);</span>
+<span class="nc" id="L118">		return component;</span>
+	}
+	
+	private JComponent createButtonsComponent() {
+		// Components
+<span class="nc" id="L123">		JButton okButton = new JButton(&quot;OK&quot;);</span>
+<span class="nc" id="L124">		okButton.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L127">				int loginAs = loginAsCombo.getSelectedIndex();</span>
+<span class="nc" id="L128">				String username = usernameField.getText();</span>
+<span class="nc" id="L129">				String password = new String(passwordField.getPassword());</span>
+<span class="nc" id="L130">				loginUser(username, password, loginAs);</span>
+<span class="nc" id="L131">			}</span>
+		});
+<span class="nc" id="L133">		JButton cancelButton = new JButton(&quot;Cancel&quot;);</span>
+<span class="nc" id="L134">		cancelButton.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				//System.out.println(&quot;Cancel, going to terminate!&quot;);
+<span class="nc" id="L138">				System.exit(0);</span>
+<span class="nc" id="L139">			}</span>
+		});
+		// Panel
+<span class="nc" id="L142">		JPanel component = new JPanel();</span>
+<span class="nc" id="L143">		component.setLayout(new BoxLayout(component, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L144">		component.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));</span>
+<span class="nc" id="L145">		component.add(okButton);</span>
+<span class="nc" id="L146">		component.add(Box.createRigidArea(new Dimension(10, 0)));</span>
+<span class="nc" id="L147">		component.add(cancelButton);</span>
+<span class="nc" id="L148">		return component;</span>
+	}
+	
+	private void loginUser(String username, String password, final int mode) {
+<span class="nc" id="L152">		boolean isValidUser = false;</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">		if(mode == 0) {</span>
+<span class="nc" id="L154">			isValidUser = true;</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">		} else if (mode == 1) {</span>
+<span class="nc" id="L156">			isValidUser = manager.isValidEmployee(username, password);</span>
+		} else {
+<span class="nc" id="L158">			isValidUser = manager.isValidAdmin(username, password);</span>
+		}
+<span class="nc bnc" id="L160" title="All 2 branches missed.">		if(isValidUser) {</span>
+			//System.out.println(&quot;User is valid&quot;);
+<span class="nc" id="L162">			this.setVisible(false);</span>
+<span class="nc" id="L163">			SwingUtilities.invokeLater(new Runnable() {</span>
+	            public void run() {
+	                //Turn off metal's use of bold fonts
+<span class="nc" id="L166">	            	MainTabbedFrame mainFrame = new MainTabbedFrame(mode);</span>
+<span class="nc" id="L167">	            }</span>
+	        });
+		} else {
+			//System.out.println(&quot;User is NOT valid&quot;);
+<span class="nc" id="L171">			JOptionPane.showMessageDialog(this,&quot;Wrong username/password&quot;,</span>
+<span class="nc" id="L172">				    &quot;Login error&quot;,JOptionPane.ERROR_MESSAGE);</span>
+		}
+<span class="nc" id="L174">	}</span>
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.0.201210061924</span>AllTests (Feb 4, 2013 12:31:10 PM)</div></body></html>

@@ -1,0 +1,3 @@
+create database hoteldb;
+grant usage on *.* to `onlineHotel`@`localhost` identified by 'onlineHotel';
+grant all privileges on hoteldb.* to `onlineHotel`@`localhost`;

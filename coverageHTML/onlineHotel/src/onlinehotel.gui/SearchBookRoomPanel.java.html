@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>SearchBookRoomPanel.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">AllTests (Feb 4, 2013 12:31:10 PM)</a> &gt; <a href="../../index.html" class="el_group">onlineHotel</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.html" class="el_package">onlinehotel.gui</a> &gt; <span class="el_source">SearchBookRoomPanel.java</span></div><h1>SearchBookRoomPanel.java</h1><pre class="source lang-java linenums"><span class="nc" id="L1">package onlinehotel.gui;</span>
+
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+
+import onlinehotel.model.ContactDetails;
+import onlinehotel.model.Customer;
+import onlinehotel.model.Room;
+import onlinehotel.model.db.SQLManager;
+
+<span class="nc" id="L27">public class SearchBookRoomPanel extends JPanel {</span>
+
+<span class="nc" id="L29">	private static String[] monthsArray = {</span>
+<span class="nc" id="L30">			&quot;-- Month --&quot;,</span>
+<span class="nc" id="L31">			&quot;January&quot;,&quot;February&quot;,&quot;March&quot;,</span>
+<span class="nc" id="L32">			&quot;April&quot;,&quot;May&quot;,&quot;June&quot;,</span>
+<span class="nc" id="L33">			&quot;July&quot;,&quot;August&quot;,&quot;September&quot;,</span>
+<span class="nc" id="L34">			&quot;October&quot;,&quot;November&quot;,&quot;December&quot;</span>
+	};
+	
+<span class="nc" id="L37">	private static int[] maxDays = {</span>
+<span class="nc" id="L38">		31,//&quot;-- Month --&quot;</span>
+<span class="nc" id="L39">		31,//&quot;January&quot;</span>
+<span class="nc" id="L40">		29,//&quot;February&quot;</span>
+<span class="nc" id="L41">		31,//&quot;March&quot;</span>
+<span class="nc" id="L42">		30,//&quot;April&quot;</span>
+<span class="nc" id="L43">		31,//&quot;May&quot;</span>
+<span class="nc" id="L44">		30,//&quot;June&quot;</span>
+<span class="nc" id="L45">		31,//&quot;July&quot;</span>
+<span class="nc" id="L46">		31,//&quot;August&quot;</span>
+<span class="nc" id="L47">		30,//&quot;September&quot;</span>
+<span class="nc" id="L48">		31,//&quot;October&quot;</span>
+<span class="nc" id="L49">		30,//&quot;November&quot;</span>
+<span class="nc" id="L50">		31//&quot;December&quot;</span>
+	};
+	
+	// Check-in fields
+<span class="nc" id="L54">	private JComboBox checkInDay = new JComboBox();</span>
+<span class="nc" id="L55">	private JComboBox checkInMonth = new JComboBox(monthsArray);;</span>
+	// Check-out fields
+	
+<span class="nc" id="L58">	private JComboBox checkOutDay = new JComboBox(new String[] {&quot;3&quot;, &quot;4&quot;});</span>
+<span class="nc" id="L59">	private JComboBox checkOutMonth = new JComboBox(monthsArray);</span>
+	// Number of beds
+<span class="nc" id="L61">	private JComboBox bedsNum = new JComboBox(new String[] {&quot;------&quot;,&quot;2&quot;, &quot;3&quot;, &quot;4&quot;});</span>
+	// Booking 
+<span class="nc" id="L63">	private JComboBox roomsList = new JComboBox();</span>
+<span class="nc" id="L64">	private JButton bookButton = new JButton(&quot;Book&quot;);</span>
+	// Customer details
+<span class="nc" id="L66">	private JTextField firstNameField = new JTextField(20);</span>
+<span class="nc" id="L67">	private JTextField lastNameField = new JTextField(20);</span>
+<span class="nc" id="L68">	private JTextField phoneNumberField = new JTextField(20);</span>
+<span class="nc" id="L69">	private JTextField cellNumberField = new JTextField(20);</span>
+<span class="nc" id="L70">	private JTextField idCardNumberField = new JTextField(20);</span>
+<span class="nc" id="L71">	private JTextField emailField = new JTextField(20);</span>
+<span class="nc" id="L72">	private JTextField addressField = new JTextField(20);</span>
+	
+	private SQLManager sqlManager;
+	
+	public SearchBookRoomPanel(SQLManager sqlManager) {
+<span class="nc" id="L77">		super();</span>
+<span class="nc" id="L78">		this.sqlManager = sqlManager;</span>
+		// Panel
+<span class="nc" id="L80">		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));</span>
+<span class="nc" id="L81">		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 0));</span>
+<span class="nc" id="L82">		add(this.createCheckInPanel());</span>
+<span class="nc" id="L83">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L84">		add(this.createCheckOutPanel());</span>
+<span class="nc" id="L85">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L86">		add(this.createNumOfBedsPanel());</span>
+<span class="nc" id="L87">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L88">		add(this.createSearchResetButtonsPanel());	</span>
+<span class="nc" id="L89">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L90">		add(new JSeparator(JSeparator.HORIZONTAL));</span>
+<span class="nc" id="L91">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L92">		createBookRoomPanel();	</span>
+		// Initially all fields related to booking must be deactivated
+<span class="nc" id="L94">		this.resetBookPanel();</span>
+<span class="nc" id="L95">	}</span>
+	
+	private JComponent createCheckInPanel() {
+		// Components
+<span class="nc" id="L99">		JLabel checkInLabel = new JLabel(&quot;Check-in date : &quot;);</span>
+<span class="nc" id="L100">		updateDaysComboBox(checkInDay, 0);</span>
+<span class="nc" id="L101">		checkInMonth.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent event) {
+<span class="nc" id="L104">				int monthSelection = ((JComboBox)event.getSource()).getSelectedIndex();</span>
+<span class="nc" id="L105">				updateDaysComboBox(checkInDay, monthSelection);</span>
+<span class="nc" id="L106">			}</span>
+		});
+		// Panel
+<span class="nc" id="L109">		JPanel checkInPanel = new JPanel();</span>
+<span class="nc" id="L110">		checkInPanel.setLayout(new BoxLayout(checkInPanel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L111">		checkInPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));</span>
+<span class="nc" id="L112">		checkInPanel.add(checkInLabel);</span>
+<span class="nc" id="L113">		checkInPanel.add(Box.createRigidArea(new Dimension(17, 0)));</span>
+<span class="nc" id="L114">		checkInPanel.add(checkInMonth);</span>
+<span class="nc" id="L115">		checkInPanel.add(Box.createRigidArea(new Dimension(10, 0)));</span>
+<span class="nc" id="L116">		checkInPanel.add(checkInDay);</span>
+<span class="nc" id="L117">		return checkInPanel;</span>
+	}
+	
+	private void updateDaysComboBox(JComboBox combo, int monthSelection) {
+<span class="nc" id="L121">		combo.removeAllItems();</span>
+<span class="nc" id="L122">		combo.addItem(&quot;-- Day --&quot;);</span>
+<span class="nc" id="L123">		int days = maxDays[monthSelection];</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">		for(int i=1; i &lt;= days; i++) {</span>
+<span class="nc" id="L125">			combo.addItem(&quot;&quot;+i);</span>
+		}
+<span class="nc" id="L127">	}</span>
+	
+	private JComponent createCheckOutPanel() {
+		// Components
+<span class="nc" id="L131">		JLabel checkOutLabel = new JLabel(&quot;Check-out date : &quot;);</span>
+<span class="nc" id="L132">		updateDaysComboBox(checkOutDay, 0);</span>
+<span class="nc" id="L133">		checkOutMonth.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent event) {
+<span class="nc" id="L136">				int monthSelection = ((JComboBox)event.getSource()).getSelectedIndex();</span>
+<span class="nc" id="L137">				updateDaysComboBox(checkOutDay, monthSelection);</span>
+<span class="nc" id="L138">			}</span>
+		});
+		//Panel
+<span class="nc" id="L141">		JPanel checkOutPanel = new JPanel();</span>
+<span class="nc" id="L142">		checkOutPanel.setLayout(new BoxLayout(checkOutPanel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L143">		checkOutPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));</span>
+<span class="nc" id="L144">		checkOutPanel.add(checkOutLabel);</span>
+<span class="nc" id="L145">		checkOutPanel.add(Box.createRigidArea(new Dimension(10, 0)));</span>
+<span class="nc" id="L146">		checkOutPanel.add(checkOutMonth);</span>
+<span class="nc" id="L147">		checkOutPanel.add(Box.createRigidArea(new Dimension(10, 0)));</span>
+<span class="nc" id="L148">		checkOutPanel.add(checkOutDay);</span>
+<span class="nc" id="L149">		return checkOutPanel;</span>
+	}
+	
+	private JComponent createNumOfBedsPanel() {
+		// Components
+<span class="nc" id="L154">		JLabel bedsLabel = new JLabel(&quot;Num. of beds :   &quot;);</span>
+		// Panel
+<span class="nc" id="L156">		JPanel bedsPanel = new JPanel();</span>
+<span class="nc" id="L157">		bedsPanel.setLayout(new BoxLayout(bedsPanel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L158">		bedsPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));</span>
+<span class="nc" id="L159">		bedsPanel.add(bedsLabel);</span>
+<span class="nc" id="L160">		bedsPanel.add(Box.createRigidArea(new Dimension(14, 0)));</span>
+<span class="nc" id="L161">		bedsPanel.add(bedsNum);</span>
+<span class="nc" id="L162">		bedsPanel.add(Box.createRigidArea(new Dimension(200, 0)));</span>
+<span class="nc" id="L163">		return bedsPanel;</span>
+	}
+	
+	private JComponent createSearchResetButtonsPanel() {
+		// Buttons
+<span class="nc" id="L168">		JButton searchButton = new JButton(&quot;Search&quot;);</span>
+<span class="nc" id="L169">		searchButton.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L172">				searchDBForRooms();</span>
+<span class="nc" id="L173">			}</span>
+		});
+<span class="nc" id="L175">		JButton resetButton = new JButton(&quot;Reset&quot;);</span>
+<span class="nc" id="L176">		resetButton.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L179">				checkInMonth.setSelectedIndex(0);</span>
+<span class="nc" id="L180">				checkOutMonth.setSelectedIndex(0);</span>
+<span class="nc" id="L181">				bedsNum.setSelectedIndex(0);</span>
+<span class="nc" id="L182">				resetBookPanel();</span>
+<span class="nc" id="L183">			}</span>
+		});
+		// Panel
+<span class="nc" id="L186">		JPanel searchResetPanel = new JPanel();</span>
+<span class="nc" id="L187">		searchResetPanel.setLayout(new BoxLayout(searchResetPanel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L188">		searchResetPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));</span>
+<span class="nc" id="L189">		searchResetPanel.add(searchButton);</span>
+<span class="nc" id="L190">		searchResetPanel.add(Box.createRigidArea(new Dimension(14, 0)));</span>
+<span class="nc" id="L191">		searchResetPanel.add(resetButton);</span>
+<span class="nc" id="L192">		searchResetPanel.add(Box.createRigidArea(new Dimension(90, 0)));</span>
+<span class="nc" id="L193">		return searchResetPanel;</span>
+	}
+	
+	private void createBookRoomPanel() {
+		// Components
+<span class="nc" id="L198">		JLabel bookRoomLabel = new JLabel(&quot;Select a room : &quot;);</span>
+<span class="nc" id="L199">		bookButton.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent event) {
+<span class="nc" id="L202">				roomBookingAction();</span>
+<span class="nc" id="L203">			}</span>
+		});
+		// Room List
+<span class="nc" id="L206">		JPanel roomListPanel = new JPanel();</span>
+<span class="nc" id="L207">		roomListPanel.setLayout(new BoxLayout(roomListPanel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L208">		roomListPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));</span>
+<span class="nc" id="L209">		roomListPanel.add(bookRoomLabel);</span>
+<span class="nc" id="L210">		roomListPanel.add(Box.createRigidArea(new Dimension(14, 0)));</span>
+<span class="nc" id="L211">		roomListPanel.add(roomsList);</span>
+<span class="nc" id="L212">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L213">		add(roomListPanel);</span>
+		// firstname
+<span class="nc" id="L215">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L216">		add(createTextFieldWithLabel(firstNameField, &quot;Firstname : &quot;, 15));</span>
+		// lastname
+<span class="nc" id="L218">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L219">		add(createTextFieldWithLabel(lastNameField, &quot;Lastname : &quot;, 15));</span>
+		// phoneNumber
+<span class="nc" id="L221">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L222">		add(createTextFieldWithLabel(phoneNumberField, &quot;Phone : &quot;, 35));</span>
+		// cellNumber
+<span class="nc" id="L224">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L225">		add(createTextFieldWithLabel(cellNumberField, &quot;Cell Phone : &quot;, 10));</span>
+		// idCardNumber
+<span class="nc" id="L227">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L228">		add(createTextFieldWithLabel(idCardNumberField, &quot;ID card : &quot;, 32));</span>
+		// e-mail
+<span class="nc" id="L230">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L231">		add(createTextFieldWithLabel(emailField, &quot;e-mail : &quot;, 36));</span>
+		// address
+<span class="nc" id="L233">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L234">		add(createTextFieldWithLabel(addressField, &quot;Address : &quot;, 25));		</span>
+		// Book Button
+<span class="nc" id="L236">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L237">		add(bookButton);</span>
+<span class="nc" id="L238">	}</span>
+	
+	private JPanel createTextFieldWithLabel(JTextField textField, String label, int space) {
+<span class="nc" id="L241">		JPanel tfPanel = new JPanel();</span>
+<span class="nc" id="L242">		tfPanel.setLayout(new BoxLayout(tfPanel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L243">		tfPanel.add(new JLabel(label));</span>
+<span class="nc" id="L244">		tfPanel.add(Box.createRigidArea(new Dimension(space, 0)));</span>
+<span class="nc" id="L245">		tfPanel.add(textField);</span>
+<span class="nc" id="L246">		return tfPanel;</span>
+	}
+	
+	private void resetBookPanel() {
+<span class="nc" id="L250">		roomsList.removeAllItems();</span>
+<span class="nc" id="L251">		roomsList.addItem(&quot;--------------------------------------------------&quot;);</span>
+<span class="nc" id="L252">		roomsList.setEnabled(false);</span>
+<span class="nc" id="L253">		bookButton.setEnabled(false);</span>
+		//
+<span class="nc" id="L255">		firstNameField.setEnabled(false);</span>
+<span class="nc" id="L256">		lastNameField.setEnabled(false);</span>
+<span class="nc" id="L257">		phoneNumberField.setEnabled(false);</span>
+<span class="nc" id="L258">		cellNumberField.setEnabled(false);</span>
+<span class="nc" id="L259">		idCardNumberField.setEnabled(false);</span>
+<span class="nc" id="L260">		emailField.setEnabled(false);</span>
+<span class="nc" id="L261">		addressField.setEnabled(false);</span>
+		//
+<span class="nc" id="L263">		firstNameField.setText(null);</span>
+<span class="nc" id="L264">		lastNameField.setText(null);</span>
+<span class="nc" id="L265">		phoneNumberField.setText(null);</span>
+<span class="nc" id="L266">		cellNumberField.setText(null);</span>
+<span class="nc" id="L267">		idCardNumberField.setText(null);</span>
+<span class="nc" id="L268">		emailField.setText(null);</span>
+<span class="nc" id="L269">		addressField.setText(null);</span>
+		//
+<span class="nc" id="L271">		checkInDay.setEnabled(true);</span>
+<span class="nc" id="L272">		checkInMonth.setEnabled(true);</span>
+<span class="nc" id="L273">		checkOutDay.setEnabled(true);</span>
+<span class="nc" id="L274">		checkOutMonth.setEnabled(true);</span>
+<span class="nc" id="L275">	}</span>
+	
+	private void searchDBForRooms() {
+		// Check input
+<span class="nc" id="L279">		int checkInDayValue = checkInDay.getSelectedIndex();</span>
+<span class="nc" id="L280">		int checkInMonthValue = checkInMonth.getSelectedIndex();</span>
+<span class="nc" id="L281">		int checkOutDayValue = checkOutDay.getSelectedIndex();</span>
+<span class="nc" id="L282">		int checkOutMonthValue = checkOutMonth.getSelectedIndex();</span>
+<span class="nc" id="L283">		int bedsNumValue = bedsNum.getSelectedIndex() + 1; </span>
+<span class="nc bnc" id="L284" title="All 4 branches missed.">		if (checkInDayValue == 0 || checkInMonthValue == 0 || </span>
+<span class="nc bnc" id="L285" title="All 6 branches missed.">				checkOutDayValue == 0 || checkOutMonthValue == 0 || bedsNumValue== 0 ) </span>
+		{
+<span class="nc" id="L287">			JOptionPane.showMessageDialog(this,&quot;All fields must be filled!&quot;,</span>
+<span class="nc" id="L288">				    &quot;Search Error&quot;,JOptionPane.ERROR_MESSAGE);</span>
+		} else if (
+<span class="nc bnc" id="L290" title="All 2 branches missed.">			(checkInMonthValue &gt; checkOutMonthValue) || </span>
+<span class="nc bnc" id="L291" title="All 4 branches missed.">			(checkInMonthValue == checkOutMonthValue &amp;&amp; checkInDayValue &gt;= checkOutDayValue) ) </span>
+		{
+<span class="nc" id="L293">			JOptionPane.showMessageDialog(this,&quot;Please correct check-in/check-out dates!&quot;,</span>
+<span class="nc" id="L294">				    &quot;Search Error&quot;,JOptionPane.ERROR_MESSAGE);</span>
+		} else {
+			// Search DB for available rooms and show results
+<span class="nc" id="L297">			Date checkInDate = getDate(checkInMonthValue, checkInDayValue);</span>
+<span class="nc" id="L298">			Date checkOutDate = getDate(checkOutMonthValue, checkOutDayValue);</span>
+<span class="nc" id="L299">			List&lt;Room&gt; availableRooms = sqlManager.searchAvailableRooms(bedsNumValue, checkInDate, checkOutDate);</span>
+<span class="nc bnc" id="L300" title="All 4 branches missed.">			if (availableRooms != null &amp;&amp; availableRooms.size() &gt; 0) {</span>
+<span class="nc" id="L301">				this.setAvailableRooms(availableRooms);</span>
+			} else {
+<span class="nc" id="L303">				JOptionPane.showMessageDialog(this,&quot;No results found within your search criteria&quot;,</span>
+<span class="nc" id="L304">					    &quot;&quot;,JOptionPane.INFORMATION_MESSAGE);</span>
+			}
+		}
+<span class="nc" id="L307">	}</span>
+	
+	private void setAvailableRooms(List&lt;Room&gt; rooms) {
+<span class="nc" id="L310">		bookButton.setEnabled(true);</span>
+<span class="nc" id="L311">		roomsList.removeAllItems();</span>
+<span class="nc" id="L312">		roomsList.addItem(&quot;--------------------------------------------------&quot;);</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">		for (Room room : rooms) {</span>
+<span class="nc" id="L314">			roomsList.addItem(room);</span>
+		}
+<span class="nc" id="L316">		roomsList.setEnabled(true);</span>
+<span class="nc" id="L317">		firstNameField.setEnabled(true);</span>
+<span class="nc" id="L318">		lastNameField.setEnabled(true);</span>
+<span class="nc" id="L319">		phoneNumberField.setEnabled(true);</span>
+<span class="nc" id="L320">		cellNumberField.setEnabled(true);</span>
+<span class="nc" id="L321">		idCardNumberField.setEnabled(true);</span>
+<span class="nc" id="L322">		emailField.setEnabled(true);</span>
+<span class="nc" id="L323">		addressField.setEnabled(true);</span>
+		//
+<span class="nc" id="L325">		checkInDay.setEnabled(false);</span>
+<span class="nc" id="L326">		checkInMonth.setEnabled(false);</span>
+<span class="nc" id="L327">		checkOutDay.setEnabled(false);</span>
+<span class="nc" id="L328">		checkOutMonth.setEnabled(false);</span>
+<span class="nc" id="L329">	}</span>
+	
+	private Date getDate(int month, int day) {
+<span class="nc" id="L332">		Calendar cal = Calendar.getInstance();</span>
+<span class="nc" id="L333">		cal.set(2013, month - 1, day);</span>
+<span class="nc" id="L334">		return cal.getTime();</span>
+	}
+	
+	private void roomBookingAction() {
+<span class="nc bnc" id="L338" title="All 2 branches missed.">		if (roomsList.getSelectedIndex() == 0) {</span>
+<span class="nc" id="L339">			JOptionPane.showMessageDialog(this,&quot;You must select a room!&quot;,</span>
+<span class="nc" id="L340">				    &quot;Field Error&quot;,JOptionPane.ERROR_MESSAGE);</span>
+		} else {
+<span class="nc" id="L342">			String address = addressField.getText();</span>
+<span class="nc" id="L343">			String email = emailField.getText();</span>
+<span class="nc" id="L344">			String phone = phoneNumberField.getText();</span>
+<span class="nc" id="L345">			String cellPhone = cellNumberField.getText();</span>
+<span class="nc" id="L346">			String firstName = firstNameField.getText();</span>
+<span class="nc" id="L347">			String lastName = lastNameField.getText();</span>
+<span class="nc" id="L348">			String idNum = idCardNumberField.getText();</span>
+<span class="nc bnc" id="L349" title="All 4 branches missed.">			if( address != null &amp;&amp; !address.trim().equals(&quot;&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L350" title="All 4 branches missed.">					email != null &amp;&amp; !email.trim().equals(&quot;&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L351" title="All 4 branches missed.">					phone != null &amp;&amp; !phone.trim().equals(&quot;&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L352" title="All 4 branches missed.">					cellPhone != null &amp;&amp; !cellPhone.trim().equals(&quot;&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L353" title="All 4 branches missed.">					firstName != null &amp;&amp; !firstName.trim().equals(&quot;&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L354" title="All 4 branches missed.">					lastName != null &amp;&amp; !lastName.trim().equals(&quot;&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L355" title="All 4 branches missed.">					idNum != null &amp;&amp; !idNum.trim().equals(&quot;&quot;)</span>
+			) {
+<span class="nc" id="L357">				Room selectedRoom = (Room)roomsList.getSelectedItem();</span>
+				// Contact Details
+<span class="nc" id="L359">				ContactDetails cd = new ContactDetails();</span>
+<span class="nc" id="L360">				cd.setAddress(address);</span>
+<span class="nc" id="L361">				cd.setCellNumber(cellPhone);</span>
+<span class="nc" id="L362">				cd.setEmail(email);</span>
+<span class="nc" id="L363">				cd.setPhoneNumber(phone);</span>
+				// Customer 
+<span class="nc" id="L365">				Customer c = new Customer();</span>
+<span class="nc" id="L366">				c.setFirstName(firstNameField.getText());</span>
+<span class="nc" id="L367">				c.setLastName(lastNameField.getText());</span>
+<span class="nc" id="L368">				c.setIdCardNumber(idCardNumberField.getText());</span>
+<span class="nc" id="L369">				c.setContactDetails(cd);</span>
+				// Check-in, Check-out dates
+<span class="nc" id="L371">				int checkInDayValue = checkInDay.getSelectedIndex();</span>
+<span class="nc" id="L372">				int checkInMonthValue = checkInMonth.getSelectedIndex();</span>
+<span class="nc" id="L373">				int checkOutDayValue = checkOutDay.getSelectedIndex();</span>
+<span class="nc" id="L374">				int checkOutMonthValue = checkOutMonth.getSelectedIndex();</span>
+<span class="nc" id="L375">				String checkInDate = getDateAsString(checkInMonthValue, checkInDayValue);</span>
+<span class="nc" id="L376">				String checkOutDate = getDateAsString(checkOutMonthValue, checkOutDayValue);</span>
+<span class="nc" id="L377">				int bookingId = sqlManager.addBookingForCustomer(c, selectedRoom, checkInDate, checkOutDate);</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">				if (bookingId &gt;= 0) {</span>
+<span class="nc" id="L379">					JOptionPane.showMessageDialog(this,&quot;Your booking id is &quot; + bookingId,</span>
+<span class="nc" id="L380">					    &quot;Booking Complete&quot;,JOptionPane.INFORMATION_MESSAGE);</span>
+				} else {
+<span class="nc" id="L382">					JOptionPane.showMessageDialog(this,&quot;Booking cannot be complete!&quot;,</span>
+<span class="nc" id="L383">						    &quot;Booking Error&quot;,JOptionPane.ERROR_MESSAGE);</span>
+				}
+<span class="nc" id="L385">				this.resetBookPanel();</span>
+			} else {
+<span class="nc" id="L387">				JOptionPane.showMessageDialog(this,&quot;Please fill in all fields!&quot;,</span>
+<span class="nc" id="L388">					    &quot;Field Error&quot;,JOptionPane.ERROR_MESSAGE);</span>
+			}
+		}	
+<span class="nc" id="L391">	}</span>
+	
+	private String getDateAsString(int month, int day) {
+<span class="nc" id="L394">		return &quot;2013-&quot; + month + &quot;-&quot; + day;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.0.201210061924</span>AllTests (Feb 4, 2013 12:31:10 PM)</div></body></html>

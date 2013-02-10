@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>OfferPanel.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">AllTests (Feb 4, 2013 12:31:10 PM)</a> &gt; <a href="../../index.html" class="el_group">onlineHotel</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.html" class="el_package">onlinehotel.gui</a> &gt; <span class="el_source">OfferPanel.java</span></div><h1>OfferPanel.java</h1><pre class="source lang-java linenums"><span class="nc" id="L1">package onlinehotel.gui;</span>
+
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import onlinehotel.model.Room;
+import onlinehotel.model.db.SQLManager;
+
+public class OfferPanel extends JPanel {
+
+	final private SQLManager sqlManager;
+
+<span class="nc" id="L26">	private final JComboBox roomSelection = new JComboBox();</span>
+<span class="nc" id="L27">	private final JTextField discountField = new JTextField();</span>
+	
+	public OfferPanel(final SQLManager sqlManager) {
+<span class="nc" id="L30">		super();</span>
+<span class="nc" id="L31">		this.sqlManager = sqlManager;</span>
+		// Panel
+<span class="nc" id="L33">		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));</span>
+<span class="nc" id="L34">		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 0));</span>
+<span class="nc" id="L35">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L36">		add(createFieldWithLabel(roomSelection, &quot;Room : &quot;, 9));</span>
+<span class="nc" id="L37">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L38">		add(createFieldWithLabel(discountField, &quot;Discount (%) : &quot;, 12));</span>
+<span class="nc" id="L39">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L40">		add(createAddChargeButton());</span>
+<span class="nc" id="L41">		add(Box.createRigidArea(new Dimension(300, 200)));</span>
+<span class="nc" id="L42">		setUpComponents();</span>
+<span class="nc" id="L43">	}</span>
+	
+	private void setUpComponents() {
+<span class="nc" id="L46">		List&lt;Room&gt; rooms = sqlManager.getAllRooms();</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">		for (Room room : rooms) {</span>
+<span class="nc" id="L48">			roomSelection.addItem(room);</span>
+		}
+<span class="nc" id="L50">	}</span>
+	
+	private JPanel createFieldWithLabel(final JComponent textField, final String label, final int space) {
+<span class="nc" id="L53">		final JPanel tfPanel = new JPanel();</span>
+<span class="nc" id="L54">		tfPanel.setLayout(new BoxLayout(tfPanel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L55">		tfPanel.add(new JLabel(label));</span>
+<span class="nc" id="L56">		tfPanel.add(Box.createRigidArea(new Dimension(space, 0)));</span>
+<span class="nc" id="L57">		tfPanel.add(textField);</span>
+<span class="nc" id="L58">		tfPanel.add(Box.createRigidArea(new Dimension(10, 0)));</span>
+<span class="nc" id="L59">		return tfPanel;</span>
+	}
+	
+	private JButton createAddChargeButton() {
+<span class="nc" id="L63">		final JButton button = new JButton(&quot;Save Discount&quot;);</span>
+<span class="nc" id="L64">		button.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent event) {
+<span class="nc" id="L67">				saveDiscount();				</span>
+<span class="nc" id="L68">			}</span>
+		});
+<span class="nc" id="L70">		return button;</span>
+	}
+	
+	private void saveDiscount() {
+<span class="nc" id="L74">		Room room = (Room)roomSelection.getSelectedItem();</span>
+<span class="nc" id="L75">		String discountStr = discountField.getText();</span>
+		try {
+<span class="nc" id="L77">			Double discount = Double.parseDouble(discountStr);</span>
+<span class="nc" id="L78">			boolean updatePerformed = sqlManager.updateRoomWithDiscount(room, discount);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">			if (updatePerformed) {</span>
+<span class="nc" id="L80">				JOptionPane.showMessageDialog(this,&quot;Room updated!&quot;,</span>
+<span class="nc" id="L81">						&quot;Process Complete&quot;,JOptionPane.INFORMATION_MESSAGE);</span>
+<span class="nc" id="L82">				discountField.setText(null);</span>
+			} else {
+<span class="nc" id="L84">				JOptionPane.showMessageDialog(this,&quot;Cannot update room with discount!&quot;,</span>
+<span class="nc" id="L85">						&quot;Error&quot;,JOptionPane.ERROR_MESSAGE);</span>
+			}
+<span class="nc" id="L87">		}catch(NumberFormatException e) {</span>
+<span class="nc" id="L88">			JOptionPane.showMessageDialog(this,&quot;Please give a valid discount percent!&quot;,</span>
+<span class="nc" id="L89">					&quot;Error&quot;,JOptionPane.ERROR_MESSAGE);</span>
+		}
+<span class="nc" id="L91">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.0.201210061924</span>AllTests (Feb 4, 2013 12:31:10 PM)</div></body></html>

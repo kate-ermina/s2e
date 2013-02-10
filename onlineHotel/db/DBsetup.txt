@@ -1,0 +1,53 @@
+|s2e lab teipir			   |
+|Katerina Martini		   |
+|Ermioni Nikolakakou		   |
+|----------------------------------
+
+Οδηγίες εγκατάστασης Βάσης
+
+1) Ανοίξτε ένα command prompt
+
+2) Πληκτρολογήστε: mysql -u root -p
+
+<Enter>
+
+3) Πληκτρολογήστε: τον κωδικό του root χρήστη
+
+<Enter>
+
+4) Πληκτρολογήστε: create database hoteldb;
+
+<Enter>
+
+5) Πληκτρολογήστε: grant usage on *.* to `onlineHotel`@`localhost` identified by 'onlineHotel';
+
+<Enter>
+
+6) Πληκτρολογήστε: grant all privileges on hoteldb.* to `onlineHotel`@`localhost`;
+
+<Enter>
+
+7) Πληκτρολογήστε: exit
+
+Αφού φτιάξατε τον χρήστη και την βάση που θα χρησιμοποιήσετε θα πρέπει να φτιάξουμε τους πίνακες. Οπότε πληκτρολογούμε
+τα παρακάτω στο command prompt.
+
+8) mysql -u onlineHotel -p < DB.sql
+
+<Enter>
+
+9) Πληκτρολογήστε τον κωδικό του onlineHotel user
+
+
+<Enter>
+
+
+
+Θυμηθείτε: 
+SQL port:3308
+Βάση: hoteldb
+username: onlineHotel
+password: onlineHotel
+
+
+

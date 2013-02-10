@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>SQLManager.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">AllTests (Feb 4, 2013 12:31:10 PM)</a> &gt; <a href="../../index.html" class="el_group">onlineHotel</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.html" class="el_package">onlinehotel.model.db</a> &gt; <span class="el_source">SQLManager.java</span></div><h1>SQLManager.java</h1><pre class="source lang-java linenums">package onlinehotel.model.db;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import onlinehotel.model.BookingDetails;
+import onlinehotel.model.Charge;
+import onlinehotel.model.CheckInDetails;
+import onlinehotel.model.ContactDetails;
+import onlinehotel.model.Customer;
+import onlinehotel.model.Room;
+
+public class SQLManager {
+
+	private Connection connection;
+
+<span class="fc" id="L22">	public SQLManager() {</span>
+<span class="fc" id="L23">		connection = SQLUtilities.connect();</span>
+<span class="fc" id="L24">	}</span>
+
+	public void close() {
+<span class="fc" id="L27">		SQLUtilities.disconnect(connection);</span>
+<span class="fc" id="L28">	}</span>
+
+	public List&lt;Room&gt; searchAvailableRooms(Integer bedsNum, Date checkIn, Date checkOut) {
+<span class="fc" id="L31">		List&lt;Room&gt; rooms = getAllRooms(bedsNum);</span>
+<span class="fc" id="L32">		List&lt;Room&gt; availableRooms = new ArrayList&lt;Room&gt;();</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">		for (Room r : rooms) {</span>
+<span class="fc" id="L34">			List&lt;BookingDetails&gt; bookingDetails = getOrderedBookingDetailsForRoom(r.getRoomNumber());</span>
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">			if (roomIsAvailable(checkIn, checkOut, bookingDetails)) {</span>
+<span class="fc" id="L36">				availableRooms.add(r);</span>
+			}
+		}
+<span class="fc" id="L39">		return availableRooms;</span>
+	}
+
+	public List&lt;Room&gt; getAllRooms() {
+<span class="fc" id="L43">		List&lt;Room&gt; rooms = new ArrayList&lt;Room&gt;();</span>
+<span class="fc" id="L44">		String query = &quot;select ROOM_NUMBER, PRICE, DISCOUNT, DESCR, NUM_OF_BEDS from room&quot;;</span>
+<span class="fc" id="L45">		ResultSet resultSet = SQLUtilities.executeSQL(query, connection);</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">		if (resultSet != null) {</span>
+			try {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">				while (resultSet.next()) {</span>
+<span class="fc" id="L49">					String roomNumber = resultSet.getString(&quot;ROOM_NUMBER&quot;);</span>
+<span class="fc" id="L50">					Double price = resultSet.getDouble(&quot;PRICE&quot;);</span>
+<span class="fc" id="L51">					Double discount = resultSet.getDouble(&quot;DISCOUNT&quot;);</span>
+<span class="fc" id="L52">					String descr = resultSet.getString(&quot;DESCR&quot;);</span>
+<span class="fc" id="L53">					Integer numOfBeds = resultSet.getInt(&quot;NUM_OF_BEDS&quot;);</span>
+<span class="fc" id="L54">					Room r = new Room();</span>
+<span class="fc" id="L55">					r.setDescr(descr);</span>
+<span class="fc" id="L56">					r.setPrice(price);</span>
+<span class="fc" id="L57">					r.setRoomNumber(roomNumber);</span>
+<span class="fc" id="L58">					r.setDiscount(discount);</span>
+<span class="fc" id="L59">					r.setNumOfBeds(numOfBeds);</span>
+<span class="fc" id="L60">					rooms.add(r);</span>
+				}
+<span class="nc" id="L62">			} catch (SQLException e) {</span>
+<span class="nc" id="L63">				e.printStackTrace();</span>
+			}
+		}
+<span class="fc" id="L66">		return rooms;</span>
+	}
+	
+	private List&lt;Room&gt; getAllRooms(Integer bedsNum) {
+<span class="fc" id="L70">		List&lt;Room&gt; rooms = new ArrayList&lt;Room&gt;();</span>
+<span class="fc" id="L71">		String query = &quot;select ROOM_NUMBER, PRICE, DISCOUNT, DESCR, NUM_OF_BEDS from room &quot; </span>
+<span class="fc" id="L72">				+ &quot;where NUM_OF_BEDS = &quot; + bedsNum;</span>
+<span class="fc" id="L73">		ResultSet resultSet = SQLUtilities.executeSQL(query, connection);</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">		if (resultSet != null) {</span>
+			try {
+<span class="fc bfc" id="L76" title="All 2 branches covered.">				while (resultSet.next()) {</span>
+<span class="fc" id="L77">					String roomNumber = resultSet.getString(&quot;ROOM_NUMBER&quot;);</span>
+<span class="fc" id="L78">					Double price = resultSet.getDouble(&quot;PRICE&quot;);</span>
+<span class="fc" id="L79">					Double discount = resultSet.getDouble(&quot;DISCOUNT&quot;);</span>
+<span class="fc" id="L80">					String descr = resultSet.getString(&quot;DESCR&quot;);</span>
+<span class="fc" id="L81">					Integer numOfBeds = resultSet.getInt(&quot;NUM_OF_BEDS&quot;);</span>
+<span class="fc" id="L82">					Room r = new Room();</span>
+<span class="fc" id="L83">					r.setDescr(descr);</span>
+<span class="fc" id="L84">					r.setPrice(price);</span>
+<span class="fc" id="L85">					r.setRoomNumber(roomNumber);</span>
+<span class="fc" id="L86">					r.setDiscount(discount);</span>
+<span class="fc" id="L87">					r.setNumOfBeds(numOfBeds);</span>
+<span class="fc" id="L88">					rooms.add(r);</span>
+				}
+<span class="nc" id="L90">			} catch (SQLException e) {</span>
+<span class="nc" id="L91">				e.printStackTrace();</span>
+			}
+		}
+<span class="fc" id="L94">		return rooms;</span>
+	}
+
+	private List&lt;BookingDetails&gt; getOrderedBookingDetailsForRoom(String roomNumber) {
+<span class="fc" id="L98">		List&lt;BookingDetails&gt; bookingDetails = new ArrayList&lt;BookingDetails&gt;();</span>
+<span class="fc" id="L99">		String query = &quot;select BOOKING_ID, ROOM_NUMBER, CHECK_IN_DATE, &quot; </span>
+				+ &quot;CHECK_OUT_DATE, PRICE_ON_BOOKING, DISCOUNT_ON_BOOKING &quot;
+				+ &quot;from booking_details where ROOM_NUMBER = &quot;
+<span class="fc" id="L102">				+ roomNumber + &quot; order by CHECK_IN_DATE&quot;;</span>
+<span class="fc" id="L103">		ResultSet resultSet = SQLUtilities.executeSQL(query, connection);</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">		if (resultSet != null) {</span>
+			try {
+<span class="fc bfc" id="L106" title="All 2 branches covered.">				while (resultSet.next()) {</span>
+<span class="fc" id="L107">					Integer id = resultSet.getInt(&quot;BOOKING_ID&quot;);</span>
+<span class="fc" id="L108">					String rm = resultSet.getString(&quot;ROOM_NUMBER&quot;);</span>
+<span class="fc" id="L109">					Double price = resultSet.getDouble(&quot;PRICE_ON_BOOKING&quot;);</span>
+<span class="fc" id="L110">					Double discount = resultSet.getDouble(&quot;DISCOUNT_ON_BOOKING&quot;);</span>
+<span class="fc" id="L111">					Date bookingCheckInDate = resultSet.getDate(&quot;CHECK_IN_DATE&quot;);</span>
+<span class="fc" id="L112">					Date bookingCheckOutDate = resultSet.getDate(&quot;CHECK_OUT_DATE&quot;);</span>
+					
+<span class="fc" id="L114">					BookingDetails b = new BookingDetails();</span>
+<span class="fc" id="L115">					b.setBookingId(id);</span>
+<span class="fc" id="L116">					b.setRoomNumber(rm);</span>
+<span class="fc" id="L117">					b.setPriceOnBooking(price);</span>
+<span class="fc" id="L118">					b.setDiscountOnBooking(discount);</span>
+<span class="fc" id="L119">					b.setCheckInDate(bookingCheckInDate);</span>
+<span class="fc" id="L120">					b.setCheckOutDate(bookingCheckOutDate);</span>
+<span class="fc" id="L121">					bookingDetails.add(b);</span>
+				}
+<span class="nc" id="L123">			} catch (SQLException e) {</span>
+<span class="nc" id="L124">				e.printStackTrace();</span>
+			}
+		}
+<span class="fc" id="L127">		return bookingDetails;</span>
+	}
+	
+	private boolean roomIsAvailable(Date checkIn, Date checkOut, List&lt;BookingDetails&gt; bookingDetails) {
+<span class="fc" id="L131">		boolean roomIsAvailable = false;</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">		if(bookingDetails.isEmpty()) {</span>
+<span class="fc" id="L133">			roomIsAvailable = true;</span>
+		} else {
+<span class="fc" id="L135">			BookingDetails currentBooking = null;</span>
+<span class="fc" id="L136">			BookingDetails previousBooking = null;</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">			for (BookingDetails details : bookingDetails) {</span>
+<span class="fc" id="L138">				previousBooking = currentBooking;</span>
+<span class="fc" id="L139">				currentBooking = details;</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">				if(previousBooking == null) {</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">					if ( currentBooking.getCheckInDate().after(checkOut) ) </span>
+<span class="fc" id="L142">						roomIsAvailable = true;</span>
+				} else {
+<span class="pc bpc" id="L144" title="2 of 4 branches missed.">					if (currentBooking.getCheckInDate().after(checkOut) &amp;&amp; previousBooking.getCheckOutDate().before(checkIn) )</span>
+<span class="nc" id="L145">						roomIsAvailable = true;</span>
+				}
+			}
+			// In case there is only one
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">			if ( currentBooking.getCheckOutDate().before(checkIn) ) </span>
+<span class="nc" id="L150">				roomIsAvailable = true;</span>
+		}
+<span class="fc" id="L152">		return roomIsAvailable;</span>
+	}
+	
+	public int addBookingForCustomer(Customer c, Room r, String checkIn, String checkOut) {
+<span class="fc" id="L156">		int bookingID = -1;</span>
+		try {
+			// Save contact details
+<span class="fc" id="L159">			int cdID = saveContactDetails(c.getContactDetails());</span>
+			// Save Customer
+<span class="fc" id="L161">			int cusID = saveCustomer(c, cdID);</span>
+			// Save booking
+<span class="fc" id="L163">			bookingID = saveBooking(r, checkIn, checkOut, cusID); </span>
+<span class="nc" id="L164">		} catch(SQLException e) {</span>
+<span class="nc" id="L165">			e.printStackTrace();</span>
+		}
+<span class="fc" id="L167">		return bookingID;</span>
+	}
+	
+	private int saveContactDetails(ContactDetails cd) throws SQLException {
+<span class="fc" id="L171">		String query = &quot;insert into contact_details(PHONE_NUMBER, CELL_PHONE, ADDRESS, EMAIL) &quot; </span>
+<span class="fc" id="L172">				+ &quot;VALUES('&quot; + cd.getPhoneNumber()  + &quot;',' &quot; </span>
+<span class="fc" id="L173">				+ cd.getCellNumber()  + &quot;', '&quot; + cd.getAddress()  </span>
+<span class="fc" id="L174">				+ &quot;', '&quot; + cd.getEmail()  + &quot;')&quot;;</span>
+<span class="fc" id="L175">		return SQLUtilities.executeInsert(query, connection);</span>
+	}
+	
+	private int saveCustomer(Customer c, int cdID) throws SQLException {
+<span class="fc" id="L179">		String query = &quot;insert into customer(FIRST_NAME, LAST_NAME, CONTACT_DETAILS_ID, ID_CARD_NUMBER) &quot; </span>
+<span class="fc" id="L180">				+ &quot;VALUES('&quot; + c.getFirstName()  + &quot;',' &quot; </span>
+<span class="fc" id="L181">				+ c.getLastName()  + &quot;', '&quot; + cdID  </span>
+<span class="fc" id="L182">				+ &quot;', '&quot; + c.getIdCardNumber() + &quot;')&quot;;</span>
+<span class="fc" id="L183">		return SQLUtilities.executeInsert(query, connection);</span>
+	}
+	
+	private int saveBooking(Room r, String checkIn, String checkOut, int cusID) throws SQLException {
+<span class="fc" id="L187">		String query = &quot;insert into booking_details(ROOM_NUMBER, CHECK_IN_DATE, CHECK_OUT_DATE, CUSTOMER_ID, &quot;</span>
+				+&quot;PRICE_ON_BOOKING, DISCOUNT_ON_BOOKING) &quot; 
+<span class="fc" id="L189">				+ &quot;VALUES('&quot; + r.getRoomNumber()  + &quot;',' &quot; </span>
+<span class="fc" id="L190">				+ checkIn  + &quot;', '&quot; + checkOut  </span>
+<span class="fc" id="L191">				+ &quot;', '&quot; + cusID + &quot;', '&quot; + r.getPrice() + &quot;', '&quot; + r.getDiscount() + &quot;')&quot;;</span>
+<span class="fc" id="L192">		return SQLUtilities.executeInsert(query, connection);</span>
+	}
+	
+	public String completeCheckIn(String bookingId) {
+<span class="fc" id="L196">		BookingDetails b = getBookingDetailsById(bookingId);</span>
+<span class="pc bpc" id="L197" title="1 of 2 branches missed.">		if (b != null) {</span>
+<span class="fc" id="L198">			int id = addCheckInDetailsRecord(b);</span>
+			//System.out.println(&quot;ID : &quot; + id);
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">			if (id &gt; 0) {</span>
+<span class="fc" id="L201">				return b.getRoomNumber();</span>
+			}
+		}
+<span class="nc" id="L204">		return null;</span>
+	}
+	
+	private int addCheckInDetailsRecord(BookingDetails bd) {
+<span class="fc" id="L208">		String query = &quot;insert into check_in_details(ROOM_NUMBER, CHECK_IN_TIME, CHECK_OUT_TIME, &quot;</span>
+				+&quot;BOOKING_DETAILS_ID, ACTIVE) &quot; 
+<span class="fc" id="L210">				+ &quot;VALUES('&quot; + bd.getRoomNumber()  + &quot;',' &quot; </span>
+<span class="fc" id="L211">				+ bd.getCheckInDateStr()  + &quot;', '&quot; + bd.getCheckOutDateStr()  </span>
+<span class="fc" id="L212">				+ &quot;', '&quot; + bd.getBookingId() + &quot;', 'YES')&quot;;</span>
+		//System.out.println(&quot;Insert : &quot; + query);
+<span class="fc" id="L214">		return SQLUtilities.executeInsert(query, connection);</span>
+	}
+	
+	private BookingDetails getBookingDetailsById(String id) {
+<span class="fc" id="L218">		BookingDetails bookingDetails = null;</span>
+<span class="fc" id="L219">		String query = &quot;select BOOKING_ID, ROOM_NUMBER, CHECK_IN_DATE, &quot; </span>
+				+ &quot;CHECK_OUT_DATE, PRICE_ON_BOOKING, DISCOUNT_ON_BOOKING &quot;
+<span class="fc" id="L221">				+ &quot;from booking_details where BOOKING_ID = &quot; + id;</span>
+<span class="fc" id="L222">		ResultSet resultSet = SQLUtilities.executeSQL(query, connection);</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">		if (resultSet != null) {</span>
+			try {
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">				if (resultSet.next()) {</span>
+<span class="fc" id="L226">					String rm = resultSet.getString(&quot;ROOM_NUMBER&quot;);</span>
+<span class="fc" id="L227">					Double price = resultSet.getDouble(&quot;PRICE_ON_BOOKING&quot;);</span>
+<span class="fc" id="L228">					Double discount = resultSet.getDouble(&quot;DISCOUNT_ON_BOOKING&quot;);</span>
+<span class="fc" id="L229">					Date bookingCheckInDate = resultSet.getDate(&quot;CHECK_IN_DATE&quot;);</span>
+<span class="fc" id="L230">					Date bookingCheckOutDate = resultSet.getDate(&quot;CHECK_OUT_DATE&quot;);</span>
+					
+<span class="fc" id="L232">					bookingDetails = new BookingDetails();</span>
+					try {
+<span class="fc" id="L234">						bookingDetails.setBookingId(Integer.parseInt(id));</span>
+<span class="nc" id="L235">					}catch(NumberFormatException e) {</span>
+<span class="nc" id="L236">						e.printStackTrace();</span>
+					}
+<span class="fc" id="L238">					bookingDetails.setRoomNumber(rm);</span>
+<span class="fc" id="L239">					bookingDetails.setPriceOnBooking(price);</span>
+<span class="fc" id="L240">					bookingDetails.setDiscountOnBooking(discount);</span>
+<span class="fc" id="L241">					bookingDetails.setCheckInDate(bookingCheckInDate);</span>
+<span class="fc" id="L242">					bookingDetails.setCheckOutDate(bookingCheckOutDate);</span>
+				}
+<span class="nc" id="L244">			} catch (SQLException e) {</span>
+<span class="nc" id="L245">				e.printStackTrace();</span>
+			}
+		}
+<span class="fc" id="L248">		return bookingDetails;</span>
+	}
+	
+	public CheckInDetails getCheckInDetails(String roomNumber) {
+<span class="fc" id="L252">		CheckInDetails details = null;</span>
+<span class="fc" id="L253">		String query = &quot;select ID, ROOM_NUMBER, CHECK_IN_TIME, CHECK_OUT_TIME, &quot; </span>
+				+ &quot;BOOKING_DETAILS_ID &quot;
+<span class="fc" id="L255">				+ &quot;from check_in_details where ACTIVE = 'YES' AND ROOM_NUMBER = &quot; + roomNumber;</span>
+<span class="fc" id="L256">		ResultSet resultSet = SQLUtilities.executeSQL(query, connection);</span>
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">		if (resultSet != null) {</span>
+			try {
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">				if (resultSet.next()) {</span>
+<span class="fc" id="L260">					String rm = resultSet.getString(&quot;ROOM_NUMBER&quot;);</span>
+<span class="fc" id="L261">					Date bookingCheckInDate = resultSet.getDate(&quot;CHECK_IN_TIME&quot;);</span>
+<span class="fc" id="L262">					Date bookingCheckOutDate = resultSet.getDate(&quot;CHECK_OUT_TIME&quot;);</span>
+<span class="fc" id="L263">					int bookingId = resultSet.getInt(&quot;BOOKING_DETAILS_ID&quot;);</span>
+<span class="fc" id="L264">					int id = resultSet.getInt(&quot;ID&quot;);</span>
+					
+<span class="fc" id="L266">					details = new CheckInDetails();</span>
+					try {
+<span class="fc" id="L268">						details.setBookingDetails(getBookingDetailsById(bookingId+&quot;&quot;));</span>
+<span class="nc" id="L269">					}catch(NumberFormatException e) {</span>
+<span class="nc" id="L270">						e.printStackTrace();</span>
+					}
+<span class="fc" id="L272">					details.setRoomNumber(rm);</span>
+<span class="fc" id="L273">					details.setCheckInID(id);</span>
+<span class="fc" id="L274">					details.setCheckInTime(bookingCheckInDate);</span>
+<span class="fc" id="L275">					details.setCheckOutTime(bookingCheckOutDate);</span>
+<span class="fc" id="L276">					details.setAdditionalCharges(getAdditionalChargesForCheckIn(id));</span>
+				}
+<span class="nc" id="L278">			} catch (SQLException e) {</span>
+<span class="nc" id="L279">				e.printStackTrace();</span>
+			}
+		}
+<span class="fc" id="L282">		return details;</span>
+	} 
+	
+	private List&lt;Charge&gt; getAdditionalChargesForCheckIn(int checkInId) {
+<span class="fc" id="L286">		List&lt;Charge&gt; list = new ArrayList&lt;Charge&gt;();</span>
+<span class="fc" id="L287">		String query = &quot;select DESCR, PRICE from charge where CHECK_IN_DETAILS_ID = &quot; + checkInId;</span>
+<span class="fc" id="L288">		ResultSet resultSet = SQLUtilities.executeSQL(query, connection);</span>
+<span class="pc bpc" id="L289" title="1 of 2 branches missed.">		if (resultSet != null) {</span>
+			try {
+<span class="fc bfc" id="L291" title="All 2 branches covered.">				while (resultSet.next()) {</span>
+<span class="fc" id="L292">					String descr = resultSet.getString(&quot;DESCR&quot;);</span>
+<span class="fc" id="L293">					Double price = resultSet.getDouble(&quot;PRICE&quot;);</span>
+					
+<span class="fc" id="L295">					Charge c = new Charge();</span>
+<span class="fc" id="L296">					c.setPrice(price);</span>
+<span class="fc" id="L297">					c.setDescr(descr);</span>
+<span class="fc" id="L298">					list.add(c);</span>
+				}
+<span class="nc" id="L300">			} catch (SQLException e) {</span>
+<span class="nc" id="L301">				e.printStackTrace();</span>
+			}
+		}
+<span class="fc" id="L304">		return list;</span>
+	}
+	
+	public int addNewCharge(String roomNumber, String descr, Double price) {
+<span class="fc" id="L308">		CheckInDetails details = getCheckInDetails(roomNumber);</span>
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">		if(details != null) {</span>
+<span class="fc" id="L310">			DecimalFormat df = new DecimalFormat(&quot;#.##&quot;);</span>
+<span class="fc" id="L311">			String query = &quot;insert into charge(DESCR, PRICE, CHECK_IN_DETAILS_ID) &quot; </span>
+<span class="fc" id="L312">					+ &quot;VALUES('&quot; + descr  + &quot;',' &quot; </span>
+<span class="fc" id="L313">					+ df.format(price)  + &quot;', '&quot; + details.getCheckInID() + &quot;')&quot;;</span>
+<span class="fc" id="L314">			return SQLUtilities.executeInsert(query, connection);</span>
+		} else {
+<span class="nc" id="L316">			return -1;</span>
+		}
+	}
+	
+	public boolean completeCheckOut(CheckInDetails details) {
+<span class="pc bpc" id="L321" title="1 of 2 branches missed.">		if(details != null) {</span>
+<span class="fc" id="L322">			String query = &quot;update check_in_details set ACTIVE = 'NO' where ID = &quot; + details.getCheckInID();</span>
+<span class="fc" id="L323">			return SQLUtilities.executeUpdate(query, connection);</span>
+		}
+<span class="nc" id="L325">		return false;</span>
+	}
+	
+	public boolean updateRoomWithDiscount(Room room, Double discount) {
+<span class="nc bnc" id="L329" title="All 4 branches missed.">		if(room != null &amp;&amp; discount != null) {</span>
+<span class="nc" id="L330">			DecimalFormat df = new DecimalFormat(&quot;#.##&quot;);</span>
+<span class="nc" id="L331">			String query = &quot;update room set DISCOUNT = '&quot; + df.format(discount) </span>
+<span class="nc" id="L332">					+ &quot;' where ROOM_NUMBER = &quot; + room.getRoomNumber();</span>
+<span class="nc" id="L333">			return SQLUtilities.executeUpdate(query, connection);</span>
+		}
+<span class="nc" id="L335">		return false;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.0.201210061924</span>AllTests (Feb 4, 2013 12:31:10 PM)</div></body></html>

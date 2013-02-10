@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>ChargesPanel.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">AllTests (Feb 4, 2013 12:31:10 PM)</a> &gt; <a href="../../index.html" class="el_group">onlineHotel</a> &gt; <a href="../index.html" class="el_bundle">src</a> &gt; <a href="index.html" class="el_package">onlinehotel.gui</a> &gt; <span class="el_source">ChargesPanel.java</span></div><h1>ChargesPanel.java</h1><pre class="source lang-java linenums"><span class="nc" id="L1">package onlinehotel.gui;</span>
+
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import onlinehotel.model.db.SQLManager;
+
+public class ChargesPanel extends JPanel {
+
+	private final SQLManager sqlManager;
+
+<span class="nc" id="L22">	private JTextField roomNumField = new JTextField();</span>
+<span class="nc" id="L23">	private JTextField descrField = new JTextField();</span>
+<span class="nc" id="L24">	private JTextField priceField = new JTextField();</span>
+	
+	public ChargesPanel(SQLManager sqlManager) {
+<span class="nc" id="L27">		super();</span>
+<span class="nc" id="L28">		this.sqlManager = sqlManager;</span>
+		// Panel
+<span class="nc" id="L30">		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));</span>
+<span class="nc" id="L31">		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 0));</span>
+<span class="nc" id="L32">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L33">		add(createTextFieldWithLabel(roomNumField, &quot;Room Num. : &quot;, 9));</span>
+<span class="nc" id="L34">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L35">		add(createTextFieldWithLabel(descrField, &quot;Description : &quot;, 12));</span>
+<span class="nc" id="L36">		add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L37">		add(createTextFieldWithLabel(priceField, &quot;Price : &quot;, 46));</span>
+<span class="nc" id="L38">		add(Box.createRigidArea(new Dimension(0, 10)));	</span>
+<span class="nc" id="L39">		add(createAddChargeButton());</span>
+<span class="nc" id="L40">		add(Box.createRigidArea(new Dimension(10, 350)));</span>
+<span class="nc" id="L41">	}</span>
+	
+	private JPanel createTextFieldWithLabel(final JTextField textField, final String label, int space) {
+<span class="nc" id="L44">		final JPanel tfPanel = new JPanel();</span>
+<span class="nc" id="L45">		tfPanel.setLayout(new BoxLayout(tfPanel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L46">		tfPanel.add(new JLabel(label));</span>
+<span class="nc" id="L47">		tfPanel.add(Box.createRigidArea(new Dimension(space, 0)));</span>
+<span class="nc" id="L48">		tfPanel.add(textField);</span>
+<span class="nc" id="L49">		tfPanel.add(Box.createRigidArea(new Dimension(10, 0)));</span>
+<span class="nc" id="L50">		return tfPanel;</span>
+	}
+	
+	private JButton createAddChargeButton() {
+<span class="nc" id="L54">		JButton button = new JButton(&quot;Add Charge&quot;);</span>
+<span class="nc" id="L55">		button.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent event) {
+<span class="nc" id="L58">				addCharge();				</span>
+<span class="nc" id="L59">			}</span>
+		});
+<span class="nc" id="L61">		return button;</span>
+	}
+	
+	private void addCharge() {
+<span class="nc" id="L65">		String roomNumber = roomNumField.getText();</span>
+<span class="nc" id="L66">		String descr = descrField.getText();</span>
+<span class="nc" id="L67">		String priceStr = priceField.getText();</span>
+<span class="nc bnc" id="L68" title="All 4 branches missed.">		if(roomNumber == null || roomNumber.trim().equals(&quot;&quot;)) {</span>
+<span class="nc" id="L69">			JOptionPane.showMessageDialog(this,&quot;Please give a valid room number!&quot;,</span>
+<span class="nc" id="L70">				&quot;Field Error&quot;,JOptionPane.ERROR_MESSAGE);</span>
+<span class="nc bnc" id="L71" title="All 4 branches missed.">		}else if(descr == null || descr.trim().equals(&quot;&quot;)) {</span>
+<span class="nc" id="L72">			JOptionPane.showMessageDialog(this,&quot;Please give a description!&quot;,</span>
+<span class="nc" id="L73">				&quot;Field Error&quot;,JOptionPane.ERROR_MESSAGE);</span>
+		} else {
+			try {
+<span class="nc" id="L76">				Double price = Double.parseDouble(priceStr);</span>
+<span class="nc" id="L77">				int recordID = sqlManager.addNewCharge(roomNumber, descr, price);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">				if (recordID &lt; 0) {</span>
+<span class="nc" id="L79">					JOptionPane.showMessageDialog(this,&quot;Cannot add new charge!&quot;,</span>
+<span class="nc" id="L80">							&quot;Error &quot;,JOptionPane.ERROR_MESSAGE);</span>
+				} else {
+<span class="nc" id="L82">					JOptionPane.showMessageDialog(this,&quot;Charge with description \&quot;&quot; </span>
+<span class="nc" id="L83">							+ descr + &quot;\&quot;and price &quot; + priceStr + &quot; added for room &quot; + roomNumber,</span>
+<span class="nc" id="L84">							&quot;Process Complete&quot;,JOptionPane.INFORMATION_MESSAGE);</span>
+<span class="nc" id="L85">					roomNumField.setText(null);</span>
+<span class="nc" id="L86">					descrField.setText(null);</span>
+<span class="nc" id="L87">					priceField.setText(null);</span>
+				}
+<span class="nc" id="L89">			}catch(NumberFormatException e) {</span>
+<span class="nc" id="L90">				JOptionPane.showMessageDialog(this,&quot;Please give a valid price!&quot;,</span>
+<span class="nc" id="L91">						&quot; Error&quot;,JOptionPane.ERROR_MESSAGE);</span>
+			}
+		}
+<span class="nc" id="L94">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.0.201210061924</span>AllTests (Feb 4, 2013 12:31:10 PM)</div></body></html>
